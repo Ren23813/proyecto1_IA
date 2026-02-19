@@ -38,3 +38,48 @@ def procesar_laberinto(ruta_imagen, tile_size=10):
                 
     return grid, inicio, metas
 
+
+
+def reconstruir_imagen(grid, tile_size=10):
+    filas, columnas = grid.shape
+    
+    # Crear imagen vacía
+    img_reconstruida = Image.new("RGB", 
+                                 (columnas * tile_size, filas * tile_size),
+                                 "white")
+    
+    for f in range(filas):
+        for c in range(columnas):
+            
+            # Determinar color según valor del grid
+            if grid[f, c] == 1:
+                color = (0, 0, 0)          # Pared
+            elif grid[f, c] == 2:
+                color = (255, 0, 0)        # Inicio
+            elif grid[f, c] == 3:
+                color = (0, 255, 0)        # Meta
+            else:
+                color = (255, 255, 255)    # Camino
+            
+            # Pintar bloque
+            for i in range(tile_size):
+                for j in range(tile_size):
+                    img_reconstruida.putpixel(
+                        (c * tile_size + j, f * tile_size + i),
+                        color
+                    )
+    
+    return img_reconstruida
+
+grid, inicio, metas = procesar_laberinto("//wsl.localhost/Ubuntu/home/melmen/ia/proyecto1_IA/image.png", 10)
+
+print("Grid:")
+print(grid)
+print("Inicio:", inicio)
+print("Metas:", metas)
+
+
+img = reconstruir_imagen(grid, tile_size=10)
+
+img.show()        
+img.save("debug.png")  
