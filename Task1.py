@@ -75,7 +75,7 @@ def reconstruir_imagen(grid, tile_size=10):
     return img_reconstruida
 
 # grid, inicio, metas = procesar_laberinto("//wsl.localhost/Ubuntu/home/melmen/ia/proyecto1_IA/image.png", 10)
-grid, inicio, metas = procesar_laberinto("./imagen2.png", 5) #cambiar el ancho de tiles según convenga en cada imagen
+grid, inicio, metas = procesar_laberinto("./image.png", 5) #cambiar el ancho de tiles según convenga en cada imagen
 
 print("Grid:")
 print(grid)
@@ -242,7 +242,8 @@ def dibujar_camino_en_grid(grid, camino):
 problema = ProblemaLaberinto(grid, inicio, metas)
 
 # Ejecutar BFS (cambiar a DFS para probarlo tambien)
-camino = BFS(problema)
+#camino = BFS(problema)
+camino = DFS(problema)
 
 print("Camino encontrado:", camino)
 
