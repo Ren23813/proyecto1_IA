@@ -367,6 +367,9 @@ if __name__ == "__main__":
         print("0. salir")
     
         menu = input("Seleccione una opción: ")
+        if menu == "0":
+            print("Gracias por utilizar el programa")
+            exit()
         titlesize = int(input("Escriba un número para la agrupación de imagenes (10 o menos): "))
 
 
