@@ -291,7 +291,8 @@ def A_est(problema):
 #funcion que ejcuta todos los modelos anteriores.
 def ejecucionModelos(nimagen, title_size):
     print("Procesando la imagen: ", nimagen)
-    grid, inicio, metas, matriz_colores = procesar_laberinto(nimagen, 10) #cambiar el ancho de tiles según convenga en cada imagen
+    grid, inicio, metas, matriz_colores = procesar_laberinto(nimagen, 10) 
+    #cambiar el ancho de tiles según convenga en cada imagen
 
     print("Grid:")
     print(grid.shape)
@@ -350,41 +351,41 @@ def ejecucionModelos(nimagen, title_size):
 
     print("\nEjecución finalizada.\n")
     
+#no es chat, es para poder importar el archivo a Task2
+if __name__ == "__main__":
 
+    print("Task 1")
+    print("Melisa Mendizabal - Micaela Yataz - Renato Rojas ")
 
-
-print("Task 1")
-print("Melisa Mendizabal - Micaela Yataz - Renato Rojas ")
-
-menu = "1"
-while menu != "0":
-    print("Puede seleccionar cualquiera de las imagenes para comprobar el funcionamiento de los modelos implementados.")
-    print("1. Ejemplo mapa para task 1 y 2")
-    print("2. Ejemplo documento")
-    print("3. Test2 (incluida en el zip de prueba)")
-    print("4. Test3")
-    print("0. salir")
-   
-    menu = input("Seleccione una opción: ")
-    titlesize = int(input("Escriba un número para la agrupación de imagenes (10 o menos): "))
-
-
-    if menu == "0":
-        print("Gracias por utilizar el programa")
-
-    elif menu == "1":
-        ejecucionModelos("./2.2.jpeg", titlesize)
-
-    elif menu == "2":
-        ejecucionModelos("./Test.bmp", titlesize)
-    elif menu == "3":
-        ejecucionModelos("./Test2.bmp", titlesize)
-    elif menu == "4":
-        ejecucionModelos("./Test3.bmp", titlesize)
+    menu = "1"
+    while menu != "0":
+        print("Puede seleccionar cualquiera de las imagenes para comprobar el funcionamiento de los modelos implementados.")
+        print("1. Ejemplo mapa para task 1 y 2")
+        print("2. Ejemplo documento")
+        print("3. Test2 (incluida en el zip de prueba)")
+        print("4. Test3")
+        print("0. salir")
     
-    else:
-        print("Seleccione alguna opción del menú")
+        menu = input("Seleccione una opción: ")
+        titlesize = int(input("Escriba un número para la agrupación de imagenes (10 o menos): "))
+
+
+        if menu == "0":
+            print("Gracias por utilizar el programa")
+
+        elif menu == "1":
+            ejecucionModelos("./2.2.jpeg", titlesize)
+
+        elif menu == "2":
+            ejecucionModelos("./Test.bmp", titlesize)
+        elif menu == "3":
+            ejecucionModelos("./Test2.bmp", titlesize)
+        elif menu == "4":
+            ejecucionModelos("./Test3.bmp", titlesize)
         
+        else:
+            print("Seleccione alguna opción del menú")
+            
 
 
 
