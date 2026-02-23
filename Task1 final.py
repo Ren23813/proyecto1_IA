@@ -1,11 +1,14 @@
-#task 1.1 Discretización del mundo
-
 import numpy as np
 from PIL import Image
 from abc import ABC, abstractmethod
 from collections import deque
+import heapq 
 
-def procesar_laberinto(ruta_imagen, tile_size=10):
+#task 1.1 Discretización del mundo
+
+#Carga una imagen y la discretiza en una matriz de nodos
+# (grid), agrupando píxeles en bloques (tiles) de tamaño tile_size × tile_size.
+def procesar_laberinto(ruta_imagen, tile_size):
     # Cargar imagen y convertir a RGB
     img = Image.open(ruta_imagen).convert('RGB')
     ancho, alto = img.size
@@ -43,8 +46,8 @@ def procesar_laberinto(ruta_imagen, tile_size=10):
     return grid, inicio, metas,  matriz_colores
 
 
-
-def reconstruir_imagen(grid, tile_size=10):
+#Reconstruye una imagen visual a partir de la matriz discreta grid.
+def reconstruir_imagen(grid, tile_size):
     filas, columnas = grid.shape
     
     # Crear imagen vacía
@@ -76,18 +79,9 @@ def reconstruir_imagen(grid, tile_size=10):
                     )
     return img_reconstruida
 
-# grid, inicio, metas = procesar_laberinto("//wsl.localhost/Ubuntu/home/melmen/ia/proyecto1_IA/image.png", 10)
-grid, inicio, metas, matriz_colores = procesar_laberinto("2.2.jpeg", 5) #cambiar el ancho de tiles según convenga en cada imagen
-
-print("Grid:")
-print(grid)
-print("Inicio:", inicio)
-print("Metas:", metas)
-img = reconstruir_imagen(grid, tile_size=10)
-img.show()        
-img.save("debug.png")  
 
 #Task 1.2
+#Define la interfaz genérica para representar un problema de búsqueda formal.
 class Problema(ABC):
 
     @abstractmethod
@@ -171,6 +165,7 @@ class Nodo:
         self.accion = accion
         self.costo = costo
 
+#Reconstruye el camino solución desde el nodo meta hasta el nodo inicial.
 def reconstruir_camino(nodo):
     camino = []
     while nodo:
@@ -178,7 +173,7 @@ def reconstruir_camino(nodo):
         nodo = nodo.padre
     return list(reversed(camino))
  
-
+#Implementación genérica del algoritmo de búsqueda en grafos.
 def graphSearch(problema, frontera, pop_func):
     nodo_inicial = Nodo(problema.inicial())
 
@@ -219,16 +214,17 @@ def graphSearch(problema, frontera, pop_func):
 
     return None
 
-
+#Implementa Breadth-First Search utilizando graphSearch.
 def BFS(problema):
     frontera = deque()
     return graphSearch(problema, frontera, frontera.popleft)
 
+#Implementa Depth-First Search utilizando graphSearch
 def DFS(problema):
     frontera = []
     return graphSearch(problema, frontera, frontera.pop)
 
-
+#Marca el camino solución dentro del grid.
 def dibujar_camino_en_grid(grid, camino):
     grid_copy = grid.copy()
 
@@ -241,31 +237,9 @@ def dibujar_camino_en_grid(grid, camino):
 
 
 
-#Para probar el trazado del laberinto ; comentar todo si no se quiere probar. 
-problema = ProblemaLaberinto(grid, inicio, metas, matriz_colores)
-
-# Ejecutar BFS (cambiar a DFS para probarlo tambien)
-#camino = BFS(problema)
-camino = DFS(problema)
-
-print("Camino encontrado:", camino)
-
-if camino:
-    grid_con_camino = dibujar_camino_en_grid(grid, camino)
-    img = reconstruir_imagen(grid_con_camino, tile_size=10)
-else:
-    print("No se encontró camino.")
-    img = reconstruir_imagen(grid, tile_size=10)
-
-img.show()
-img.save("resultado.png")
 
 #Task 1.3 #busqueda A*
-
-#para que escoja expandir el nodo con el vallor de f mas pequeño
-import heapq 
-
-class Nodo:
+class NodoAEstrella:
     def __init__(self, estado, padre=None, accion=None, costo=0, heuristica=0):
         self.estado = estado
         self.padre = padre
@@ -286,7 +260,7 @@ def heuristica_manhattan(estado, metas):
 
 def A_est(problema):
     h_inicial= heuristica_manhattan(problema.inicial(), problema.finales)
-    nodo_inicial=Nodo(problema.inicial(), costo=0, heuristica=h_inicial)
+    nodo_inicial=NodoAEstrella(problema.inicial(), costo=0, heuristica=h_inicial)
 
     frontera = []
     heapq.heappush(frontera, nodo_inicial)
@@ -309,29 +283,108 @@ def A_est(problema):
                 if estado_hijo not in costos_g or nuevo_costo_g <costos_g[estado_hijo]:
                     costos_g[estado_hijo]=nuevo_costo_g
                     h=heuristica_manhattan(estado_hijo, problema.finales)
-                    hijo=Nodo(estado_hijo, nodo, accion, nuevo_costo_g, h)
+                    hijo=NodoAEstrella(estado_hijo, nodo, accion, nuevo_costo_g, h)
                     heapq.heappush(frontera, hijo)
     return None 
 
-print("Ejecución A*")
 
-camino_a_estrella= A_est(problema)
-if camino_a_estrella:
-    print(f"Camino A* encontrado con {len(camino_a_estrella)} pasos.")
-    grid_con_a_estrella = dibujar_camino_en_grid(grid, camino_a_estrella)
-    img_a_estrella = reconstruir_imagen(grid_con_a_estrella,tile_size=10)
-    img_a_estrella.save("resultado_1_3.png")
-    img_a_estrella.show()
-else:
-    print("No se ha encontrado un camino con A*.")
+#funcion que ejcuta todos los modelos anteriores.
+def ejecucionModelos(nimagen, title_size):
+    print("Procesando la imagen: ", nimagen)
+    grid, inicio, metas, matriz_colores = procesar_laberinto(nimagen, 10) #cambiar el ancho de tiles según convenga en cada imagen
 
-grid, inicio,  metas, matriz_colores=procesar_laberinto("image.png", 5)
-problema=ProblemaLaberinto(grid,inicio, metas, matriz_colores)
+    print("Grid:")
+    print(grid.shape)
+    print("")
+    print("Nodo inicial:", inicio)
+    print("Nodos metas:", metas)
+    print("")
 
-print("Calculando ruta")
-camino=A_est(problema)
+    img = reconstruir_imagen(grid, tile_size= title_size)
+    img.show()        
+    img.save("debug.png")  
 
-if camino:
-    print(f"El camino optimizado encontrado, pasos:{len(camino)}")
-else:
-    print("No hay camino posible")
+    #Para probar el trazado del laberinto ; comentar todo si no se quiere probar. 
+    problema = ProblemaLaberinto(grid, inicio, metas, matriz_colores)
+
+    # Ejecutar BFS 
+    print("----- Ejecutando BFS -----")
+    camino_bfs = BFS(problema)
+
+    if camino_bfs:
+        print(f"BFS encontró camino de {len(camino_bfs)} pasos.")
+        grid_bfs = dibujar_camino_en_grid(grid, camino_bfs)
+        img_bfs = reconstruir_imagen(grid_bfs, tile_size=title_size)
+        img_bfs.save("resultado_BFS.png")
+    else:
+        print("BFS no encontró solución.")
+    print()
+
+    #Ejecutar DFS
+    
+    #camino = BFS(problema)
+    print("----- Ejecutando DFS -----")
+    camino_dfs = DFS(problema)
+
+    if camino_dfs:
+        print(f"DFS encontró camino de {len(camino_dfs)} pasos.")
+        grid_dfs = dibujar_camino_en_grid(grid, camino_dfs)
+        img_dfs = reconstruir_imagen(grid_dfs, tile_size=title_size)
+        img_dfs.save("resultado_DFS.png")
+    else:
+        print("DFS no encontró solución.")
+
+    print()
+
+    print("----- Ejecutando A* -----")
+
+    camino_a_estrella= A_est(problema)
+    if camino_a_estrella:
+        print(f"Camino A* encontrado con {len(camino_a_estrella)} pasos.")
+        grid_con_a_estrella = dibujar_camino_en_grid(grid, camino_a_estrella)
+        img_a_estrella = reconstruir_imagen(grid_con_a_estrella,tile_size=title_size)
+        img_a_estrella.save("resultado_ASTAR.png")
+        img_a_estrella.show()
+    else:
+        print("No se ha encontrado un camino con A*.")
+
+    print("\nEjecución finalizada.\n")
+    
+
+
+
+print("Task 1")
+print("Melisa Mendizabal - Micaela Yataz - Renato Rojas ")
+
+menu = "1"
+while menu != "0":
+    print("Puede seleccionar cualquiera de las imagenes para comprobar el funcionamiento de los modelos implementados.")
+    print("1. Ejemplo mapa para task 1 y 2")
+    print("2. Ejemplo documento")
+    print("3. Test2 (incluida en el zip de prueba)")
+    print("4. Test3")
+    print("0. salir")
+   
+    menu = input("Seleccione una opción: ")
+    titlesize = int(input("Escriba un número para la agrupación de imagenes (10 o menos): "))
+
+
+    if menu == "0":
+        print("Gracias por utilizar el programa")
+
+    elif menu == "1":
+        ejecucionModelos("./2.2.jpeg", titlesize)
+
+    elif menu == "2":
+        ejecucionModelos("./Test.bmp", titlesize)
+    elif menu == "3":
+        ejecucionModelos("./Test2.bmp", titlesize)
+    elif menu == "4":
+        ejecucionModelos("./Test3.bmp", titlesize)
+    
+    else:
+        print("Seleccione alguna opción del menú")
+        
+
+
+
