@@ -256,3 +256,80 @@ else:
 
 img.show()
 img.save("resultado.png")
+
+#Task 1.3 #busqueda A*
+
+#para que escoja expandir el nodo con el vallor de f mas pequeño
+import heapq 
+
+class Nodo:
+    def __init__(self, estado, padre=None, accion=None, costo=0, heuristica=0):
+        self.estado = estado
+        self.padre = padre
+        self.accion = accion
+        self.costo = costo #funcon g:costo real
+        self.heuristica = heuristica #funcion h: estimacion de la heuristica para llegar
+        self.f = costo + heuristica #funcion f:g+h
+
+#f mas pequeño
+    def __lt__(self, otro):
+        return self.f < otro.f
+
+#Heuristica Manhatan 
+def heuristica_manhattan(estado, metas):
+    distacia=[abs(estado[0]-m[0])+abs(estado[1]-m[1]) for m in metas]
+    return min(distacia) if distacia else 0
+
+
+def A_est(problema):
+    h_inicial= heuristica_manhattan(problema.inicial(), problema.finales)
+    nodo_inicial=Nodo(problema.inicial(), costo=0, heuristica=h_inicial)
+
+    frontera = []
+    heapq.heappush(frontera, nodo_inicial)
+
+    explorados=set()
+    costos_g={nodo_inicial.estado:0}
+    while frontera:
+        nodo=heapq.heappop(frontera)
+
+        if problema.goalTest(nodo.estado):
+            return reconstruir_camino(nodo)
+        
+        explorados.add(nodo.estado)
+
+        for accion in problema.acciones(nodo.estado):
+            estado_hijo=problema.resultado(nodo.estado, accion)
+            nuevo_costo_g=nodo.costo+problema.costo(nodo.estado,accion,estado_hijo)
+
+            if estado_hijo not in explorados:
+                if estado_hijo not in costos_g or nuevo_costo_g <costos_g[estado_hijo]:
+                    costos_g[estado_hijo]=nuevo_costo_g
+                    h=heuristica_manhattan(estado_hijo, problema.finales)
+                    hijo=Nodo(estado_hijo, nodo, accion, nuevo_costo_g, h)
+                    heapq.heappush(frontera, hijo)
+    return None 
+
+print("Ejecución A*")
+
+camino_a_estrella= A_est(problema)
+if camino_a_estrella:
+    print(f"Camino A* encontrado con {len(camino_a_estrella)} pasos.")
+    grid_con_a_estrella = dibujar_camino_en_grid(grid, camino_a_estrella)
+    img_a_estrella = reconstruir_imagen(grid_con_a_estrella,tile_size=10)
+    img_a_estrella.save("resultado_1_3.png")
+    img_a_estrella.show()
+else:
+    print("No se ha encontrado un camino con A*.")
+
+grid, inicio,  metas, matriz_colores=procesar_laberinto("image.png", 5)
+problema=procesar_laberinto(grid,inicio, metas, matriz_colores)
+
+print("Calculando ruta")
+camino=A_est(problema)
+
+if camino:
+    print(f"El camino optimizado encontrado, pasos:{len(camino)}")
+else:
+    print("No hay camino posible")
+    
